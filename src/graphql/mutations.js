@@ -61,15 +61,15 @@ export const createScore = `mutation CreateScore($input: CreateScoreInput!) {
     name
     notes {
       items {
+        id
         number
         dot
         doubleDot
         line
         doubleLine
         curve
-        row
-        column
-        index
+        position
+        scoreId
       }
       nextToken
     }
@@ -93,15 +93,15 @@ export const updateScore = `mutation UpdateScore($input: UpdateScoreInput!) {
     name
     notes {
       items {
+        id
         number
         dot
         doubleDot
         line
         doubleLine
         curve
-        row
-        column
-        index
+        position
+        scoreId
       }
       nextToken
     }
@@ -125,15 +125,15 @@ export const deleteScore = `mutation DeleteScore($input: DeleteScoreInput!) {
     name
     notes {
       items {
+        id
         number
         dot
         doubleDot
         line
         doubleLine
         curve
-        row
-        column
-        index
+        position
+        scoreId
       }
       nextToken
     }
@@ -153,15 +153,14 @@ export const deleteScore = `mutation DeleteScore($input: DeleteScoreInput!) {
 `;
 export const createNote = `mutation CreateNote($input: CreateNoteInput!) {
   createNote(input: $input) {
+    id
     number
     dot
     doubleDot
     line
     doubleLine
     curve
-    row
-    column
-    index
+    position
     score {
       id
       name
@@ -177,20 +176,20 @@ export const createNote = `mutation CreateNote($input: CreateNoteInput!) {
       updatedAt
       status
     }
+    scoreId
   }
 }
 `;
 export const updateNote = `mutation UpdateNote($input: UpdateNoteInput!) {
   updateNote(input: $input) {
+    id
     number
     dot
     doubleDot
     line
     doubleLine
     curve
-    row
-    column
-    index
+    position
     score {
       id
       name
@@ -206,20 +205,20 @@ export const updateNote = `mutation UpdateNote($input: UpdateNoteInput!) {
       updatedAt
       status
     }
+    scoreId
   }
 }
 `;
 export const deleteNote = `mutation DeleteNote($input: DeleteNoteInput!) {
   deleteNote(input: $input) {
+    id
     number
     dot
     doubleDot
     line
     doubleLine
     curve
-    row
-    column
-    index
+    position
     score {
       id
       name
@@ -235,6 +234,7 @@ export const deleteNote = `mutation DeleteNote($input: DeleteNoteInput!) {
       updatedAt
       status
     }
+    scoreId
   }
 }
 `;

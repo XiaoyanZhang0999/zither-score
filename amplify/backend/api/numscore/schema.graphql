@@ -23,16 +23,16 @@ enum ScoreStatus {
 }
 
 type Note @model {
+  id: ID!
   number: Int
   dot: dotStatus
   doubleDot: dotStatus
   line: Boolean
   doubleLine: Boolean
   curve: Int
-  row: Int
-  column: Int
-  index: Int
+  position: [Int]!
   score: Score @connection(name: "ScoreNotes")
+  scoreId: String!
 }
 
 enum dotStatus {

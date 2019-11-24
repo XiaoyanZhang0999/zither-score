@@ -9,7 +9,7 @@ import Dot from "@material-ui/icons/FiberManualRecord";
 import Line from "@material-ui/icons/Remove";
 import DoubleLine from "@material-ui/icons/DragHandle";
 import { Dropdown } from "react-bootstrap";
-import { Auth, graphqlOperation, API } from 'aws-amplify';
+import { graphqlOperation, API } from 'aws-amplify';
 import * as queries from '../../graphql/queries';
 import * as mutations from '../../graphql/mutations';
 import * as subscriptions from '../../graphql/subscriptions';
@@ -19,35 +19,109 @@ class SingleScoreInput extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: {}
+      notes: [],
+      num: null,
+      pos: []
     };
     console.log(this.props.score);
     this.handleChange = this.handleChange.bind(this);
+    this.handleCreateNote = this.handleCreateNote.bind(this);
+    this.handleUpdateNote = this.handleUpdateNote.bind(this);
+    this.handleDeleteNote = this.handleDeleteNote.bind(this);
   }
 
-  handleChange(e) {
-    const updatedData = { ...this.state.data };
-    let { value, min, max } = e.target;
-    value = Math.max(Number(min), Math.min(Number(max), Number(value)));
-    updatedData[e.target.name] = value;
-    
+  async componentDidMount() {
+    const result = await API.graphql(graphqlOperation(queries.listNotes, { limit: 200, 
+      filter: {
+        scoreId: {
+          eq: this.props.score.id
+        }
+      }}));  
+
     this.setState({
-      data: updatedData
+      notes: result.data.listNotes.items
     });
-    console.log(this.state.data);
+    console.log(this.state.notes);
+  }
+
+  async handleChange(e) {
+    e.preventDefault();
+    try {
+      let { value, min, max } = e.target;
+      console.log("inside change");
+      console.log(e.target.value);
+      if(value) {
+        value = Math.max(Number(min), Math.min(Number(max), Number(value)));
+      }
+      else value = null;
+      let result = e.target.getAttribute("position").replace(/, +/g, ",").split(",").map(Number);
+      
+      this.setState({
+        num: value,
+        pos: result
+      }, () => {
+        const temp = this.state.notes;
+        let exist = false;
+        let note_id = "";
+        for(let i = 0; i < temp.length; ++i) {
+          if(JSON.stringify(temp[i].position) == JSON.stringify(this.state.pos)) {
+            note_id = temp[i].id;
+            exist = true;
+          }
+        }
+        console.log(exist);
+        if(exist) {
+          this.state.num ? this.handleUpdateNote(note_id) : this.handleDeleteNote(note_id);
+        }
+        else {
+          this.handleCreateNote();
+        }
+      });
+    }
+    catch(e) {
+      alert(e.message);
+    }
   };
 
-  async handleCreateNote() {
+  async handleCreateNote(id) {
     try {
-
+      const noteCreated = await API.graphql(graphqlOperation(mutations.createNote, {
+          input: {
+            number: this.state.num,
+            position: this.state.pos,
+            noteScoreId: this.props.score.id,
+            scoreId: this.props.score.id
+          }
+      }));
+      this.setState({
+        note: noteCreated
+      });
     }
     catch(e) {
       alert(e.message);
     }
   }
-    
-  
 
+  async handleUpdateNote(id) {
+    const updatedNote = await API.graphql(graphqlOperation(mutations.updateNote, {
+        input: {
+          id: id,
+          number: this.state.num,
+          position: this.state.pos
+        }
+    }));
+    console.log(updatedNote);
+    
+  }
+
+  async handleDeleteNote(id) {
+    const deletedNote = await API.graphql(graphqlOperation(mutations.deleteNote,{
+        input:{
+            id : id
+        }
+    }));
+  }
+    
   //console.log(props.nodeLength);
   render() {
     return this.props.lineLength.map(row => (
@@ -136,7 +210,7 @@ class SingleScoreInput extends Component {
                     <span key={column}>
                       <input
                         key="0"
-                        name={[row, column, 0]}
+                        position={[row, column, 0]}
                         className="singleNote"
                         type="number"
                         min="0"
@@ -145,28 +219,28 @@ class SingleScoreInput extends Component {
                       />
                       <input
                         key="1"
-                        name={[row, column, 1]}
+                        position={[row, column, 1]}
                         className="singleNote"
                         type="number"
-                        min="1"
+                        min="0"
                         max="7"
                         onChange={this.handleChange}
                       />
                       <input
                         key="2"
-                        name={[row, column, 2]}
+                        position={[row, column, 2]}
                         className="singleNote"
                         type="number"
-                        min="1"
+                        min="0"
                         max="7"
                         onChange={this.handleChange}
                       />
                       <input
                         key="3"
-                        name={[row, column, 3]}
+                        position={[row, column, 3]}
                         className="singleNote"
                         type="number"
-                        min="1"
+                        min="0"
                         max="7"
                         onChange={this.handleChange}
                       />

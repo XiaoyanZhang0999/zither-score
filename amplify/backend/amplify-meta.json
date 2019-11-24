@@ -20,7 +20,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/numscore-local-20191122002554-deployment/amplify-cfn-templates/auth/numscore23475956-cloudformation-template.yml",
 				"logicalId": "authnumscore23475956"
 			},
-			"lastPushTimeStamp": "2019-11-22T05:32:17.992Z",
+			"lastPushTimeStamp": "2019-11-24T04:53:41.521Z",
 			"output": {
 				"AppClientSecret": "1ujie8p3ecj547c6chappapnnme4f0qqvtdcmbhisq6pp5dqsukk",
 				"UserPoolId": "us-east-1_Sbh7qj4nQ",
@@ -54,8 +54,8 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/numscore-local-20191122002554-deployment/amplify-cfn-templates/api/cloudformation-template.json",
 				"logicalId": "apinumscore"
 			},
-			"lastPushTimeStamp": "2019-11-22T05:32:17.992Z",
-			"lastPushDirHash": "NKO8Le6vGxGfdaGVKPobjhKamsk="
+			"lastPushTimeStamp": "2019-11-24T04:53:43.832Z",
+			"lastPushDirHash": "cAa1j/Wm7ADTZCY6TJ1zwYsCxgc="
 		}
 	},
 	"hosting": {
@@ -66,7 +66,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/numscore-local-20191122002554-deployment/amplify-cfn-templates/hosting/template.json",
 				"logicalId": "hostingS3AndCloudFront"
 			},
-			"lastPushTimeStamp": "2019-11-22T05:32:17.992Z",
+			"lastPushTimeStamp": "2019-11-24T04:53:41.524Z",
 			"output": {
 				"S3BucketSecureURL": "https://numscore-local.s3.amazonaws.com",
 				"WebsiteURL": "http://numscore-local.s3-website-us-east-1.amazonaws.com",

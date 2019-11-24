@@ -43,15 +43,15 @@ export const getScore = `query GetScore($id: ID!) {
     name
     notes {
       items {
+        id
         number
         dot
         doubleDot
         line
         doubleLine
         curve
-        row
-        column
-        index
+        position
+        scoreId
       }
       nextToken
     }
@@ -96,15 +96,14 @@ export const listScores = `query ListScores(
 `;
 export const getNote = `query GetNote($id: ID!) {
   getNote(id: $id) {
+    id
     number
     dot
     doubleDot
     line
     doubleLine
     curve
-    row
-    column
-    index
+    position
     score {
       id
       name
@@ -120,6 +119,7 @@ export const getNote = `query GetNote($id: ID!) {
       updatedAt
       status
     }
+    scoreId
   }
 }
 `;
@@ -130,15 +130,14 @@ export const listNotes = `query ListNotes(
 ) {
   listNotes(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
+      id
       number
       dot
       doubleDot
       line
       doubleLine
       curve
-      row
-      column
-      index
+      position
       score {
         id
         name
@@ -146,6 +145,7 @@ export const listNotes = `query ListNotes(
         updatedAt
         status
       }
+      scoreId
     }
     nextToken
   }
