@@ -7,8 +7,6 @@ import * as queries from '../../graphql/queries';
 import * as mutations from '../../graphql/mutations';
 import * as subscriptions from '../../graphql/subscriptions';
 
-
-
 // Four inputs in one componenet
 class SingleScoreInput extends Component {
   constructor(props) {
@@ -21,35 +19,23 @@ class SingleScoreInput extends Component {
       line: false,
       doubleline: false,
       dot: null,
-      doubledot: null,
+      doubledot: null
     };
-
-    this.refList = [];
-    this.a = React.createRef();
 
     //console.log(this.props.score);
     this.handleChange = this.handleChange.bind(this);
     this.handleCreateNoteNumber = this.handleCreateNoteNumber.bind(this);
     this.handleCreateNoteSymbol = this.handleCreateNoteSymbol.bind(this);
     this.handleUpdateNoteNumber = this.handleUpdateNoteNumber.bind(this);
-    this.handleUpdateNoteSymbol = this.handleUpdateNoteSymbol.bind(this);
+    this.handleUpdateLowerNoteSymbol = this.handleUpdateLowerNoteSymbol.bind(this);
     this.handleUpdateUpperNoteSymbol = this.handleUpdateUpperNoteSymbol.bind(this);
     this.handleDeleteNote = this.handleDeleteNote.bind(this);
-    this.handleSymbolChange = this.handleSymbolChange.bind(this);
+    this.handleLowerSymbolChange = this.handleLowerSymbolChange.bind(this);
     this.handleUpperSymbolChange = this.handleUpperSymbolChange.bind(this);
 
     this.noteCreationSubscription = null;
     this.noteUpdationSubscription = null;
     this.noteDeletionSubscription = null;
-  }
-
-  createRef() {
-    const ls = this.state.ls;
-
-    for (let i = 0; i < ls.length; i++) {
-      this.refList[i] = React.createRef();
-    }
-    console.log("this is the refList: ", this.refList);
   }
 
   async componentDidMount() {
@@ -159,17 +145,13 @@ class SingleScoreInput extends Component {
       console.log(value);
       let result = e.target.name.replace(/, +/g, ",").split(",").map(Number);
       this.setState({
-        // line: value === "line" ? true : false,
-        // doubleline: value === "doubleline" ? true : false,
         dot: value === "dot-top" ? "TOP" : null,
         doubledot: value === "doubledot-top" ? "TOP" : null,
-        // dot: value === "dot-top" ? "TOP" : value ==="dot-bottom" ? "BOTTOM" : null,
-        // doubledot: value === "doubledot-top" ? "TOP" : value ==="doubledot-bottom" ? "BOTTOM" : null,
         pos: result
       }, () => {
-        console.log(this.state.dot)
+        console.log("dot: ", this.state.dot);
+
         const temp = this.state.notes;
-        //console.log(temp);
         let exist = false;
         let note_id = "";
         for (let i = 0; i < temp.length; ++i) {
@@ -192,23 +174,21 @@ class SingleScoreInput extends Component {
     }
   }
 
-  async handleSymbolChange(e) {
+  async handleLowerSymbolChange(e) {
     e.preventDefault(); 
     try {
       let { value } = e.target;
       console.log(e.target.value);
       let result = e.target.name.replace(/, +/g, ",").split(",").map(Number);
+      
       this.setState({
         line: value === "line" ? true : false,
         doubleline: value === "doubleline" ? true : false,
         dot: value === "dot-bottom" ? "BOTTOM" : null,
         doubledot: value === "doubledot-bottom" ? "BOTTOM" : null,
-        // dot: value === "dot-top" ? "TOP" : value ==="dot-bottom" ? "BOTTOM" : null,
-        // doubledot: value === "doubledot-top" ? "TOP" : value ==="doubledot-bottom" ? "BOTTOM" : null,
         pos: result
       }, () => {
         const temp = this.state.notes;
-        //console.log(temp);
         let exist = false;
         let note_id = "";
         for (let i = 0; i < temp.length; ++i) {
@@ -219,7 +199,7 @@ class SingleScoreInput extends Component {
         }
         console.log(exist);
         if (exist) {
-          this.handleUpdateNoteSymbol(note_id);
+          this.handleUpdateLowerNoteSymbol(note_id);
         }
         else {
           this.handleCreateNoteSymbol();
@@ -285,59 +265,60 @@ class SingleScoreInput extends Component {
       graphqlOperation(queries.getNote, {
         id: id
       }))
-    console.log(getNote);
-    console.log(getNote.data.getNote.number)
 
-    this.setState({
-      line: getNote.data.getNote.line,
-      doubleLine: getNote.data.getNote.doubleline,
-    })
-    console.log('------------')
-    console.log(getNote.data.getNote.line)
-    console.log(getNote.data.getNote.doubleLine)
-    console.log(this.state.line)
-    console.log(this.state.doubleLine)
+    let note = getNote.data.getNote;
+    let dot = this.state.dot;
+    let doubledot = this.state.doubledot;
+
+    if(note.doubleDot === "BOTTOM" && this.state.dot) {
+      doubledot = null;
+      dot = this.state.dot;
+    }
+
+    if(note.dot === "BOTTOM" && this.state.doubledot) {
+      doubledot = this.state.doubledot;
+      dot = null;
+    } 
     
-
     const updatedNote = await API.graphql(graphqlOperation(mutations.updateNote, {
       input: {
         id: id,
-        line: this.state.line,
-        doubleLine: this.state.doubleline,
-        dot: this.state.dot,
-        doubleDot: this.state.doubledot,
+        dot: dot,
+        doubleDot: doubledot,
         position: this.state.pos
       }
     }));
-    this.setState({
-      note: updatedNote
-    });
     console.log("updated: ", updatedNote.data.updateNote);
   }
 
-  async handleUpdateNoteSymbol(id) {
+  async handleUpdateLowerNoteSymbol(id) {
     const getNote = await API.graphql(
       graphqlOperation(queries.getNote, {
         id: id
       }))
-    console.log(getNote);
-    console.log(getNote.data.getNote.number)
-
-    if (!this.state.dot && !this.state.doubledot){
-      this.setState({
-        dot: getNote.data.getNote.dot,
-        doubledot: getNote.data.getNote.doubleDot,
-      })
-    }
     
+    let note = getNote.data.getNote;
+    let dot = note.dot;
+    let doubledot = note.doubledot;
 
+    if(note.doubleDot === "TOP" && this.state.dot) {
+      doubledot = null;
+      dot = this.state.dot;
+    }
+
+    console.log(this.state.doubledot);
+    if(note.dot === "TOP" && this.state.doubledot) {
+      doubledot = this.state.doubledot;
+      dot = null;
+    } 
+    
     const updatedNote = await API.graphql(graphqlOperation(mutations.updateNote, {
       input: {
         id: id,
         line: this.state.line,
         doubleLine: this.state.doubleline,
-        dot: this.state.dot,
-        doubleDot: this.state.doubledot,
+        dot: dot,
+        doubleDot: doubledot,
         position: this.state.pos
       }
     }));
@@ -358,7 +339,6 @@ class SingleScoreInput extends Component {
 
   componentDidUpdate() {
     if (this.state.notes) {
-      console.log("component update: ", this.state.notes);
       this.state.notes.forEach((note) => {
         if (note.position[0] < this.props.lineLength.length) {
           const pos = note.position.toString();
@@ -368,10 +348,12 @@ class SingleScoreInput extends Component {
 
           note.dot === "TOP" ? symbol_top.value = "dot-top" 
             : note.doubleDot === "TOP" ? symbol_top.value = "doubledot-top"
-            : note.dot === "BOTTOM" ? symbol_bottom.value = "dot-bottom"
+            : symbol_top.value = null;
+            
+          note.dot === "BOTTOM" ? symbol_bottom.value = "dot-bottom"
             : note.doubleDot === "BOTTOM" ? symbol_bottom.value = "doubledot-bottom" 
-            : note.line === true ? symbol_bottom.value = "line" 
-            : note.doubleLine === true ? symbol_bottom.value = "doubleline" 
+            : note.line ? symbol_bottom.value = "line" 
+            : note.doubleLine ? symbol_bottom.value = "doubleline" 
             : symbol_bottom.value = null;
 
           input.value = note.number;
@@ -425,7 +407,7 @@ class SingleScoreInput extends Component {
                           onChange={this.handleChange}
                         />      
                       </span>
-                      <select name={[row, column, 0]} onChange={this.handleSymbolChange} className="select">
+                      <select name={[row, column, 0]} onChange={this.handleLowerSymbolChange} className="select">
                           <option>   </option>
                           <option value="dot-bottom" className="option"> . </option>
                           <option value="doubledot-bottom" className="option"> : </option>
@@ -455,7 +437,7 @@ class SingleScoreInput extends Component {
                           onChange={this.handleChange}
                         />
                       </span>
-                      <select name={[row, column, 1]} onChange={this.handleSymbolChange} className="select">
+                      <select name={[row, column, 1]} onChange={this.handleLowerSymbolChange} className="select">
                           <option>   </option>
                           <option value="dot-bottom" className="option"> . </option>
                           <option value="doubledot-bottom" className="option"> : </option>
@@ -483,7 +465,7 @@ class SingleScoreInput extends Component {
                           onChange={this.handleChange}
                         />
                       </span>
-                      <select name={[row, column, 2]} onChange={this.handleSymbolChange} className="select">
+                      <select name={[row, column, 2]} onChange={this.handleLowerSymbolChange} className="select">
                           <option>   </option>
                           <option value="dot-bottom" className="option"> . </option>
                           <option value="doubledot-bottom" className="option"> : </option>
@@ -511,7 +493,7 @@ class SingleScoreInput extends Component {
                           onChange={this.handleChange}
                         />
                       </span>
-                      <select name={[row, column, 3]} onChange={this.handleSymbolChange} className="select">
+                      <select name={[row, column, 3]} onChange={this.handleLowerSymbolChange} className="select">
                           <option>   </option>
                           <option value="dot-bottom" className="option"> . </option>
                           <option value="doubledot-bottom" className="option"> : </option>

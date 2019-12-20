@@ -20,6 +20,7 @@ class ListFeedbacks extends Component {
       open: false,
       comment: "",
       feedback_id: "",
+      status: "",
       columns: [
         { title: "Name", field: "name" },
         { title: "Email", field: "email" },
@@ -32,7 +33,7 @@ class ListFeedbacks extends Component {
     this.handleClickClose = this.handleClickClose.bind(this);
     this.handleResolveFeedback = this.handleResolveFeedback.bind(this);
     this.handleIgnoreFeedback = this.handleIgnoreFeedback.bind(this);
-    this.handleFethData = this.handleFethData.bind(this);
+    this.handleFetchData = this.handleFetchData.bind(this);
   }
 
   //get public scores from all users
@@ -76,12 +77,12 @@ class ListFeedbacks extends Component {
           {
             feedbacks: remainingFeedbacks
           },
-          () => this.handleFethData()
+          () => this.handleFetchData()
         );
       }
     });
 
-    this.handleFethData();
+    this.handleFetchData();
   }
 
   componentWillUnmount() {
@@ -91,7 +92,7 @@ class ListFeedbacks extends Component {
       this.feedbackUpdationSubscription.unsubscribe();
   }
 
-  handleFethData() {
+  handleFetchData() {
     this.setState({
       data: this.state.feedbacks.map(feedback => {
         const ID = feedback.id;
@@ -112,11 +113,12 @@ class ListFeedbacks extends Component {
     });
   }
 
-  handleClickOpen(comment, id) {
+  handleClickOpen(data) {
     this.setState({
       open: true,
-      comment: comment,
-      feedback_id: id
+      comment: data.comment,
+      feedback_id: data.ID,
+      status: data.status
     });
   }
 
@@ -179,12 +181,21 @@ class ListFeedbacks extends Component {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={this.handleResolveFeedback} color="primary">
-              Mark as Resolved
-            </Button>
-            <Button onClick={this.handleIgnoreFeedback} color="primary">
-              Ignore
-            </Button>
+            { this.state.status === "Unresolved" ? 
+              <>
+                <Button onClick={this.handleResolveFeedback} color="primary">
+                    Mark as Resolved
+                </Button>
+                <Button onClick={this.handleIgnoreFeedback} color="primary">
+                    Ignore
+                </Button>
+              </> :
+              <>
+                <Button onClick={this.handleClickClose} color="primary">
+                    Cancel
+                </Button>
+              </>
+            }
           </DialogActions>
         </Dialog>
         <MaterialTable
@@ -192,7 +203,7 @@ class ListFeedbacks extends Component {
           columns={this.state.columns}
           data={this.state.data}
           onRowClick={(event, rowData) =>
-            this.handleClickOpen(rowData.comment, rowData.ID)
+            this.handleClickOpen(rowData)
           }
         />
       </Container>
